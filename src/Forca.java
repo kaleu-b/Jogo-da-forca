@@ -1,20 +1,63 @@
 import java.util.Scanner;
+
 public class Forca {
-    Scanner scanner = new Scanner(System.in);
-    public void iniciarJogo() {
-        // Lógica do jogo da Forca
-        System.out.println("Iniciando o jogo da Forca...");
-        System.exit(0);
-        Menu.pausa(1000);
-        System.out.println("Bem-vindo ao jogo da Forca!");
-        System.out.println("Deseja jogar contra um amigo ou contra o computador? (1 - Amigo, 2 - Computador)");
-        int modo = scanner.nextInt();
-        scanner.nextLine(); // Limpar o buffer do scanner
-        System.out.println("Digite o número de rodadas: ");
-        int rodadas = scanner.nextInt();
-        scanner.nextLine(); // Limpar o buffer do scanner
-        
-        
+    public static void main(String[] args) {
+        menu(); // chama o método menu para iniciar o menu do jogo.
     }
 
+    public static void menu() {
+        char opcao;
+        Scanner input = new Scanner(System.in);
+        do {
+            System.out.println("---------------Bem-vindo ao jogo da Forca!---------------");
+            pausa(1000);
+            System.out.println("---------------MENU---------------");
+            System.out.println("1 - Jogar"); // opção que inicia o jogo
+            System.out.println("2 - Instruções");  // opção que encerra o jogo
+            System.out.println("3 - Créditos"); // opção que mostra algumas instruções do jogo
+            System.out.println("4 - Sair"); //créditos do jogo
+            System.out.println("---------------------------------");
+            System.out.print("Escolha uma opção:");
+            
+            opcao = input.next().charAt(0); 
+            
+            switch (opcao) {
+                case '1':
+                    //método de chamada do jogo. por enquanto não tem nada.
+                    break; 
+                case '2':
+                    System.out.println("Instruções do jogo da Forca:");
+                    System.out.println("1. O objetivo é adivinhar a(s) palavra(s) secreta.");
+                    System.out.println("2. Você tem 7 tentativas.");
+                    System.out.println("3. A cada erro, uma parte do boneco é desenhada.");
+                    System.out.println("4. Se o boneco for completado, você perde.");
+                    pausa(5000); 
+                    break;
+                case '3':
+                    System.out.println("Créditos:");
+                    System.out.println("Desenvolvido por Kaléu Borges");
+                    pausa(2000); // pausa de 2 segundos pra dar tempo do usuário ler os créditos.
+                    break;
+                case '4':
+                    System.out.println("Saindo do jogo...");
+                    pausa(1500); // pausa de 1.5 segundos pra dar tempo do usuário ler a mensagem.
+                    System.exit(0); // encerra o programa
+                    break;
+                default:
+                    System.out.println("Opção inválida!");
+                    System.out.flush();
+                    break;
+            }
+
+        } while (opcao != '4'); // Assuming '4' is the exit option
+        input.close();
+    }
+     
+    public static void pausa(int tempoPausa) {// pausa o jogo por um tempo para dar tempo do usuário ler as mensagens e deixar o jogo mais fluido. 
+        try {
+            Thread.sleep(tempoPausa); // pausa o programa por um tempo especificado em milissegundos. 1000 milisegundos = 1 segundo, e por aí vai.
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }
