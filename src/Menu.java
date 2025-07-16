@@ -5,16 +5,18 @@ public class Menu {
      * Método principal que inicia a execução do programa.
      */
     public static void main(String[] args) {
-        verMenu(); // Chama o método que exibe e gerencia o menu principal
+        new Menu().verMenu(); // Cria uma nova instância de Menu e chama o método verMenu
     }
 
     /**
      * Exibe o menu principal e gerencia as opções selecionadas pelo usuário.
      * Controla o fluxo do programa com base nas escolhas do jogador.
      */
-    public static void verMenu() {
+   
+
+    public void verMenu() {
         char opcao; // Armazena a opção selecionada pelo usuário no menu principal
-        Scanner input = new Scanner(System.in); // Objeto para leitura de entrada do usuário
+         Scanner input = new Scanner(System.in); // Objeto para leitura de entrada do usuário
 
         // Loop principal do menu - executa até que o usuário selecione a opção de sair (4)
         do {
@@ -65,8 +67,7 @@ public class Menu {
                                 break;
                         }
                     } while (modojogo != '1' && modojogo != '2'); // Repete até seleção válida
-
-                    Forca.iniciarJogo(multiplayer); // Chama o método que inicia a lógica principal do jogo, passando o modo de jogo e o número de rodadas
+                    new Forca().iniciarJogo(multiplayer); // Cria uma nova instância de Forca e inicia o jogo com o modo selecionado
                     break;
 
                 case '2': // Opção para exibir as instruções do jogo
@@ -103,7 +104,7 @@ public class Menu {
      * Pausa a execução do programa por um tempo determinado.
      * @param tempoPausa Tempo de pausa em milissegundos (ex: 1000 = 1 segundo)
      */
-    public static void pausa(int tempoPausa) {
+    public void pausa(int tempoPausa) {
         try {
             Thread.sleep(tempoPausa); // Suspende a execução da thread atual
         } catch (InterruptedException e) {
