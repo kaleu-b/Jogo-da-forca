@@ -2,7 +2,7 @@ public class Boneco {
     
     /**
      * Exibe o boneco do jogo da forca com base no número de erros.
-     * @param erros Número de erros cometidos pelo jogador.
+     * só isso
      */
     public static void exibirBoneco(int erros) {
         switch (erros) {
