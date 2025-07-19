@@ -1,10 +1,18 @@
-import java.util.Scanner;
+/*Now Playing:
+ *
+ * Candy Truck/You expected: LAB Your Result: GREEN - Bring Me The Horizon
+ *             0:01  ❍─────── 4:28
+ *            ↻     ⊲  Ⅱ  ⊳     ↺
+ *           Volume: ▁▂▃▄▅▆▇ 100%
+ */
 import java.util.Random;
+import java.util.Scanner;
 
 public class Forca extends Menu {
-    public Scanner scanner; // passa o scanner da classe Menu pra classe Forca, pra não precisar criar mais um objeto
+    public Scanner scanner;
     public Jogador jogador = new Jogador();
     public String nome;
+    private final Random random = new Random();
 
     public Forca(Scanner scanner) {
         this.scanner = scanner;
@@ -12,34 +20,45 @@ public class Forca extends Menu {
     }
 
     public void iniciarJogo(boolean multiplayer) {
-        String palavra = escolhaPalavra(multiplayer);
-        adivinharPalavra(palavra, multiplayer);
+        adivinharPalavra(escolhaPalavra(multiplayer), multiplayer);
     }
 
-
     public String escolhaPalavra(boolean multiplayer) {
-        String palavra = "";
+        String palavra;
         if (multiplayer == true) {
             for (int i = 0; i < jogador.numeroJogadores; i++) {
                 System.out.print("Digite o nome do jogador " + (i + 1) + ": ");
                 nome = scanner.nextLine();
                 jogador.setNome(nome, i);
             }
-            Random random = new Random();
-            int vezJogador = random.nextInt(jogador.numeroJogadores);
-            System.out.println(jogador.getNome(vezJogador) + ", Escolha uma palavra para o amigo adivinhar:");
+
+            jogador.setWordPicker(random.nextInt(jogador.numeroJogadores));
+            
+            switch (jogador.getWordpicker()) {
+                case 1:
+                    jogador.setGuesser(0);
+                    break;
+                default:
+                    jogador.setGuesser(1);
+                    break;
+            }
+            System.out.println(jogador.getNome(jogador.getWordpicker()) + ", Escolha uma palavra para " + jogador.getNome(jogador.getGuesser()) + " adivinhar:");
             palavra = scanner.nextLine();
-           // System.out.println("Palavra escolhida: " + palavra);
+            while (palavra.length() > 20) {
+                System.out.println(palavra + " É grande demais. Digite uma palavra menor.");
+                palavra = scanner.nextLine();
+            }
         } else {
             jogador.setNome("Computador", 0);
             System.out.println("A palavra será escolhida pelo computador.");
-            palavra = "exemplo";
+            palavra = "exemplo"; //placeholder;
             System.out.print("Digite seu nome: ");
             nome = scanner.nextLine();
             jogador.setNome(nome, 1);
-            //System.out.println("Palavra escolhida: " + palavra);
+            jogador.setGuesser(1);
         }
-        return palavra;
+        limpaTela();
+        return palavra; 
     }
 
     public void adivinharPalavra(String palavra, boolean multiplayer) {
@@ -47,32 +66,59 @@ public class Forca extends Menu {
         int erros = 0;
         String palavra_minusculas = palavra.toLowerCase();
         StringBuilder estadoPalavra = new StringBuilder(new String(letrasDescobertas));
-        System.out.println("Estado atual: " + estadoPalavra.toString());
-        System.out.println("Erros: " + erros);
+        mostraEstado(estadoPalavra, erros);
         boolean jogoAtivo = true;
-        int indiceJogador = jogador.numeroJogadores > 1 ? 1 : 0;
+        int advinhador = jogador.getGuesser();
 
         while (jogoAtivo) {
-            char letra = lerLetra(indiceJogador);
-            boolean letraEncontrada = atualizarLetrasDescobertas(letra, palavra_minusculas, letrasDescobertas);
-
-            if (!letraEncontrada) {
-                erros++;
-                Boneco.exibirBoneco(erros);
-            } else {
-                estadoPalavra = new StringBuilder(new String(letrasDescobertas));
+            System.out.print(jogador.getNome(advinhador) + ", Digite uma letra ou a palavra completa: ");
+            String input = scanner.nextLine().toLowerCase();
+            
+            while (input.isEmpty()) {
+            System.out.print("Erro: vazio. Digite novamente: ");
+            String input = scanner.nextLine().toLowerCase();
             }
 
-            System.out.println("Estado atual: " + estadoPalavra.toString());
-            System.out.println("Erros: " + erros);
+            if (input.length() > 1) { // If input is a word guess
+                if (input.equals(palavra_minusculas)) {
+                    // Player guessed the whole word correctly
+                    estadoPalavra = new StringBuilder(palavra);
+                    mostraEstado(estadoPalavra, erros);
+                    System.out.println("Parabéns, " + jogador.getNome(advinhador) + "! Você adivinhou a palavra: " + palavra);
+                    jogoAtivo = false;
+                    break;
+                } else {
+                    // Wrong word guess - count as error
+                    erros++;
+                    Boneco.exibirBoneco(erros);
+                    System.out.println("Palavra incorreta! Tente novamente.");
+                }
+            } else { // If input is a single letter
+                char letra = input.charAt(0);
+                boolean letraEncontrada = atualizarLetrasDescobertas(letra, palavra_minusculas, letrasDescobertas);
 
-            if (verificarVitoria(estadoPalavra, palavra_minusculas, indiceJogador, palavra)) {
+                if (!letraEncontrada) {
+                    erros++;
+                    Boneco.exibirBoneco(erros);
+                } else {
+                    estadoPalavra = new StringBuilder(new String(letrasDescobertas));
+                }
+            }
+
+            mostraEstado(estadoPalavra, erros);
+
+            if (verificarVitoria(estadoPalavra, palavra_minusculas, advinhador, palavra)) {
                 jogoAtivo = false;
             } else if (verificarDerrota(erros, palavra)) {
                 jogoAtivo = false;
             }
         }
         fimDeJogo(multiplayer);
+    }
+
+    private void mostraEstado(StringBuilder estadoPalavra, int erros) {
+        System.out.println("Palavra: " + estadoPalavra.toString());
+        System.out.println("Erros: " + erros);
     }
 
     private char[] inicializarLetrasDescobertas(String palavra) {
@@ -85,11 +131,6 @@ public class Forca extends Menu {
             }
         }
         return letrasDescobertas;
-    }
-
-    private char lerLetra(int indiceJogador) {
-        System.out.print(jogador.getNome(indiceJogador) + ", Digite uma letra: ");
-        return scanner.nextLine().toLowerCase().charAt(0);
     }
 
     private boolean atualizarLetrasDescobertas(char letra, String palavra_minusculas, char[] letrasDescobertas) {
@@ -106,37 +147,38 @@ public class Forca extends Menu {
     private boolean verificarVitoria(StringBuilder estadoPalavra, String palavra_minusculas, int indiceJogador, String palavra) {
         if (estadoPalavra.toString().equals(palavra_minusculas)) {
             System.out.println("Parabéns, " + jogador.getNome(indiceJogador) + "! Você adivinhou a palavra: " + palavra);
-             Forca.pausa(1000);
+            pausa(1000);
             return true;
         }
         return false;
     }
+
     private boolean verificarDerrota(int erros, String palavra) {
         if (erros >= 6) {
             System.out.println("Você perdeu! A palavra era: " + palavra);
-            Forca.pausa(1000);
+            pausa(2000);
             return true;
         }
         return false;
     }
 
     private void fimDeJogo(boolean multiplayer) {
+        limpaTela();
         System.out.println("Fim do jogo! Obrigado por jogar.");
-        Forca.pausa(1000);
+        pausa(1000);
         System.out.println("Deseja jogar novamente? (s/n) ou voltar pro menu? (m)");
         String resposta = scanner.nextLine().toLowerCase();
-      
+
         switch (resposta) {
             case "m":
-            //não precisa fazer nada. o jogo roda no loop do menu.
-            break;            
+                break;
             case "s":
-                iniciarJogo(multiplayer); // Reinicia o jogo
+                iniciarJogo(multiplayer);
                 break;
             case "n":
                 System.out.println("Obrigado por jogar! Até a próxima.");
-                scanner.close(); // Fecha o scanner para liberar recursos
-                System.exit(0); // Encerra o programa
+                scanner.close();
+                System.exit(0);
                 break;
             default:
                 System.out.println("Opção inválida. Saindo do jogo.");
@@ -145,5 +187,4 @@ public class Forca extends Menu {
                 break;
         }
     }
-
 }
