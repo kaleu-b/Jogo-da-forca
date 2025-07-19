@@ -1,8 +1,11 @@
+//import java.util.Random;
 public class Jogador {
-    String[] nome = new String[2]; // Array to hold player names
-    //int[] pontos = new int[2]; // Array to hold player scores
-    int numeroJogadores = 2; // Number of players in the game
-    //int[] vidaJogadores = new int[2]; // Array to hold players' lives
+    public int picker; // int que vai manter 
+    public int guesser;
+    String[] nome = new String[2]; // Array que recebe os nomes dos jogadores
+    //int[] pontos = new int[2]; // Array que mantém score dos jogadores (desativado)
+    int numeroJogadores = 2; // Número de jogadores (só 2)
+    //int[] vidaJogadores = new int[2]; // Array pra controlar HP de jogadores (desativado)
 
     /*
      * métodos e variáveis desativadas por comentários são funcionalidades que podem ser implementadas no futuro.
@@ -27,9 +30,36 @@ public class Jogador {
         }
     }*/
 
+public void setWordPicker(int index) {
+    this.picker = index;
+}
 
+public void setGuesser(int index) {
+    this.guesser = index;
+}
 
+public int getGuesser() {
+    return guesser;
+}
 
+public int getWordpicker(){
+    return picker;
+}
+
+   /*  public int escolhe(boolean multiplayer) {
+    if (multiplayer) {
+        return new Random().nextInt(numeroJogadores);
+    }
+    return 0;
+}
+
+  public int escolheAdvinhador(int escolhedor) {
+    switch (escolhedor) {
+        case 0: 
+        return 1;
+        default: return 1;
+    }
+}*/
     public void setNome(String nome, int idJogador) {
         this.nome[idJogador] = nome; // define o nome do jogador baseado no ID [0 ou 1] (terá que ser alteradp caso quantidades maiores de jogadores sejam implementadas)  
     }
@@ -56,4 +86,3 @@ public class Jogador {
         this.vidaJogadores[idJogador] = vida; // Set the player's lives based on their ID
     }*/
 }
-
