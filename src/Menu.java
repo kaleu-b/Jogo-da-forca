@@ -101,7 +101,6 @@ public class Menu {
                 default: // Tratamento de opção inválida no menu principal
                     System.out.println("Opção inválida! Por favor, escolha uma opção válida.");
                     pausa(1000);
-                    System.out.flush(); // Limpa o buffer de saída
                     break;
             }
         } while (opcao != '4'); // Condição de saída do loop principal
