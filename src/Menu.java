@@ -58,10 +58,12 @@ public class Menu {
                             case '1': // Modo multiplayer (contra amigo)
                                 multiplayer = true;
                                 System.out.println("Modo selecionado: Jogar contra amigo");
+                                pausa(1000);
                                 break;
                             case '2': // Modo single player (contra computador)
                                 multiplayer = false;
                                 System.out.println("Modo selecionado: Jogar contra computador");
+                                pausa(1000);
                                 break;
                             default: // Tratamento de opção inválida
                                 System.out.println("Opção de modo inválida! Por favor, escolha 1 ou 2.");
@@ -99,7 +101,6 @@ public class Menu {
                 default: // Tratamento de opção inválida no menu principal
                     System.out.println("Opção inválida! Por favor, escolha uma opção válida.");
                     pausa(1000);
-                    System.out.flush(); // Limpa o buffer de saída
                     break;
             }
         } while (opcao != '4'); // Condição de saída do loop principal
@@ -118,18 +119,25 @@ public class Menu {
         }
     }
 
+/*esse método começa um processo de limpeza do terminal, dependendo do OS que o usuário estiver usando.
+ *se for um windows, chama o cls.
+ * se for linux/mac/unix/qualquer outro OS, usa o clear.
+ */
    public static void limpaTela() {
-    try {
-        if (System.getProperty("os.name").contains("Windows")) {
-            new ProcessBuilder("cmd", "/c", "cls");
-        System.out.println("Clear do windows usado");
-        } else {
-            System.out.print("\033[H\033[2J"); // Unix/Linux/Mac
-            System.out.flush();
-            System.out.println("Clear do linux usado");
+    try { //tenta limpar a tela:
+        //se o sistema operacional for um windows: 
+        if (System.getProperty("os.name").contains("Windows")) { 
+        // abre um processo do CLS no terminal do jogo, limpando a tela.
+        new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+    // se não for um windows:
+    } else { 
+        //abre um processo do clear no terminal do jogo, também limpando a tela.
+        new ProcessBuilder("clear").inheritIO().start().waitFor();
         }
-    } catch (Exception e) {
-        System.out.println("ERRO: : " + e.getMessage());
+    } catch (Exception e) { // e se der algum erro:
+    for(int i = 0; i<50; i++){ //imprime 50 linhas vazias em loop. não é exatamente uma "limpeza" pq dá pra simplesmente scrollar, mas melhor do que nada.
+        System.out.println("");
+    }
     }
 }
 }
