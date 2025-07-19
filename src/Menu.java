@@ -20,6 +20,7 @@ public class Menu {
 
         // Loop principal do menu - executa até que o usuário selecione a opção de sair (4)
         do {
+            limpaTela();
             // Exibe o cabeçalho do menu com animação de pausa
             System.out.println("---------------Bem-vindo ao jogo da Forca!---------------");
             pausa(1000); // Pausa para melhor experiência do usuário
@@ -43,7 +44,8 @@ public class Menu {
 
                     // Loop para garantir uma seleção válida do modo de jogo
                     do {
-                        pausa(1000); // Pausa  antes de iniciar
+                        limpaTela();
+                        //pausa(1000); // Pausa  antes de iniciar
                         System.out.println("Iniciando o jogo da Forca...");
                         pausa(1000);
 
@@ -68,6 +70,7 @@ public class Menu {
                     } while (modojogo != '1' && modojogo != '2'); // Repete até seleção válida
                     //input.nextLine();
                     //scanner.close(); // Fecha o scanner para liberar recursos
+                    limpaTela();
                     new Forca(input).iniciarJogo(multiplayer); // Cria uma nova instância de Forca e inicia o jogo com o modo selecionado
                     break;
 
@@ -95,6 +98,7 @@ public class Menu {
 
                 default: // Tratamento de opção inválida no menu principal
                     System.out.println("Opção inválida! Por favor, escolha uma opção válida.");
+                    pausa(1000);
                     System.out.flush(); // Limpa o buffer de saída
                     break;
             }
@@ -113,4 +117,20 @@ public class Menu {
             e.printStackTrace();
         }
     }
+
+   public static void limpaTela() {
+    try {
+        if (System.getProperty("os.name").contains("Windows")) {
+            new ProcessBuilder("cmd", "/c", "cls");
+        System.out.println("Clear do windows usado");
+        } else {
+            System.out.print("\033[H\033[2J"); // Unix/Linux/Mac
+            System.out.flush();
+            System.out.println("Clear do linux usado");
+        }
+    } catch (Exception e) {
+        System.out.println("ERRO: : " + e.getMessage());
+    }
 }
+}
+ 
