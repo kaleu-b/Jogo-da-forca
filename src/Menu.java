@@ -5,7 +5,7 @@ public class Menu {
      * Método principal que inicia a execução do programa.
      */
     public static void main(String[] args) {
-        new Menu().verMenu(); // Cria uma nova instância de Menu e chama o método verMenu
+       verMenu(); // Chama o método que exibe o menu inicial.
     }
 
     /**
@@ -14,7 +14,7 @@ public class Menu {
      */
    
 
-    public void verMenu() {
+    public static void verMenu() {
         char opcao; // Armazena a opção selecionada pelo usuário no menu principal
         Scanner input = new Scanner(System.in); // Objeto para leitura de entrada do usuário
 
@@ -70,8 +70,6 @@ public class Menu {
                                 break;
                         }
                     } while (modojogo != '1' && modojogo != '2'); // Repete até seleção válida
-                    //input.nextLine();
-                    //scanner.close(); // Fecha o scanner para liberar recursos
                     limpaTela();
                     new Forca(input).iniciarJogo(multiplayer); // Cria uma nova instância de Forca e inicia o jogo com o modo selecionado
                     break;
@@ -103,7 +101,7 @@ public class Menu {
                     pausa(1000);
                     break;
             }
-        } while (opcao != '4'); // Condição de saída do loop principal
+        } while (opcao != '4' || opcao != '1'); // Condição de saída do loop principal
     }
 
     /**
@@ -141,7 +139,3 @@ public class Menu {
     }
 }
 }
-<<<<<<< Updated upstream
- 
-=======
->>>>>>> Stashed changes
