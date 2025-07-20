@@ -73,35 +73,39 @@ public class Forca extends Menu {
     // Método principal de adivinhação da palavra
     public void adivinharPalavra(String palavra, boolean multiplayer) {
         char[] letrasDescobertas = inicializarLetrasDescobertas(palavra); // Inicializa o array de letras descobertas
-        int erros = 0; // Contador de erros
-        String palavra_minusculas = palavra.toLowerCase(); // Palavra escolhida em minúsculas para facilitar a comparação
-        StringBuilder estadoPalavra = new StringBuilder(new String(letrasDescobertas)); // Estado atual da palavra
-        mostraEstado(estadoPalavra, erros); // Mostra o estado da palavra
+        int erros = 0; // Contador de erros, começa com 0.
+        String palavra_minusculas = palavra.toLowerCase(); // Palavra escolhida em minúsculas para facilitar a comparação.
+        // Estado atual da palavra.
+        // O esperado desse string builder é que ele se pareça mais ou menos assim:
+        // ___ __ ______
+        // cada _ é uma letra, o espaço é um espaço.
+        StringBuilder estadoPalavra = new StringBuilder(new String(letrasDescobertas)); 
+        mostraEstado(estadoPalavra, erros); // Mostra o estado do jogo, se o jogador venceu ou não.
         boolean jogoAtivo = true; // Flag para controlar o loop do jogo
         int advinhador = jogador.getGuesser(); // Índice do jogador que vai adivinhar
 
         while (jogoAtivo) { // Loop principal do jogo
             System.out.print(jogador.getNome(advinhador) + ", Digite uma letra ou a palavra completa: "); // Pede uma letra ou palavra
-            String input = scanner.nextLine().toLowerCase(); // Lê a entrada e converte para minúsculas
+            String input = scanner.nextLine().toLowerCase(); // Lê a entrada e converte para minúsculas, isso vai facilitar a comparação com a palavra escolhida.
+            // Verifica se a entrada não é vazia.
             // se a entrada for vazia, pede pro jogadore digitar mais uma vez.
             while (input.isEmpty()) { 
                 System.out.print("Erro: vazio. Digite novamente: "); 
-                input = scanner.nextLine().toLowerCase();
+                input = scanner.nextLine().toLowerCase(); 
             }
         // Se o tamanho do input tiver um tamanho maior que 1, vamos considerar que é uma tentativa de advinhar a palavra inteira.
             if (input.length() > 1) { 
                 if (input.equals(palavra_minusculas)) { // Se acertou a palavra inteira
-                    estadoPalavra = new StringBuilder(palavra); // Revela a palavra
-                    mostraEstado(estadoPalavra, erros); // Mostra o estado final
+                    estadoPalavra = new StringBuilder(palavra); // Revela a palavra (mais especificamente: cria um string buider novo com a palavra completa e substitui o antigo)
+                    mostraEstado(estadoPalavra, erros); // Mostra o estado final ( sempre vai ser uma vitória nesse caso)
                     // Mensagem de vitória
                     System.out.println("Parabéns, " + jogador.getNome(advinhador) + "! Você adivinhou a palavra: " + palavra); 
                     pausa(2000); //pausa para dar tempo do jogador ler.
-                    jogoAtivo = false; // Encerra o jogo
                     break;
                 } else { // Se errou a palavra
-                    erros++; // Conta erro
+                    erros++; // Conta o erro
                     Boneco.exibirBoneco(erros); // Mostra o boneco
-                    System.out.println("Palavra incorreta! Tente novamente."); // Mensagem de erro
+                    System.out.println("Palavra incorreta! Tente novamente."); // Mensagem que informa que o jogador errou a palavra.
                 }
             } else { // Se for uma letra (tamanho do input  = 1)
                 char letra = input.charAt(0); // Pega a letra (garantimos que a entrada seja transformada em um char antes de passar pro método)
@@ -143,20 +147,29 @@ public class Forca extends Menu {
     // se for um espaço, preenche com espaço ' '.
     // é feito assim pros espaços entre as letras não aparecerem como '_', mas sim como espaços mesmo.
     // ex: palavra = "Pão de queijo" -> ___ __ ______
-    // se não trocássemos os 
+    // se não trocássemos os espaços por espaços e tratássemos tudo como '_', o array ficaria assim:
+    // ____________
+    // o que não é o esperado.
+    // o array é retornado para ser usado no jogo.
     private char[] inicializarLetrasDescobertas(String palavra) {
         char[] letrasDescobertas = new char[palavra.length()]; // Cria o array
         for (int i = 0; i < letrasDescobertas.length; i++) { // Para cada letra
             if (palavra.charAt(i) == ' ') { // Se for espaço
-                letrasDescobertas[i] = ' '; // Revela espaço
+                letrasDescobertas[i] = ' '; // Revela o espaço
             } else {
-                letrasDescobertas[i] = '_'; // Caso contrário, esconde
+                letrasDescobertas[i] = '_'; // Caso contrário, se for uma letra, esconde com '_'
             }
         }
         return letrasDescobertas; // Retorna o array
     }
 
-    // Atualiza o array de letras descobertas com a letra digitada
+    // Atualiza o array de letras descobertas com a letra digitada.
+    // Se a letra digitada for igual a alguma letra da palavra, revela essa letra no array.
+    // Retorna true se a letra foi encontrada, false caso contrário.
+    // Esse método é chamado toda vez que o jogador digita uma letra.
+    // Ele verifica se a letra digitada está na palavra e atualiza o array de letras descobertas.
+    // Se a letra for encontrada, ela é revelada no array, caso contrário
+    // o número de erros é incrementado.
     private boolean atualizarLetrasDescobertas(char letra, String palavra_minusculas, char[] letrasDescobertas) {
         boolean letraEncontrada = false; // Flag para saber se encontrou ou não uma letra.
         //se sim:
@@ -181,7 +194,7 @@ public class Forca extends Menu {
         return false; // Não venceu ainda
     }
 
-    // Verifica se o jogador perdeu
+    // Verifica se o jogador perdeu ou não.
     private boolean verificarDerrota(int erros, String palavra) {
         if (erros >= 6) { // Se atingiu o limite de erros
             System.out.println("Você perdeu! A palavra era: " + palavra); // Mensagem de derrota
@@ -191,7 +204,7 @@ public class Forca extends Menu {
         return false; // Não perdeu ainda
     }
 
-    // Finaliza o jogo e pergunta se o jogador quer jogar novamente
+    // Finaliza o jogo e pergunta se o jogador quer jogar novamente 
     private void fimDeJogo(boolean multiplayer) {
         limpaTela(); // Limpa a tela
         System.out.println("Fim do jogo! Obrigado por jogar."); // Mensagem final
@@ -199,12 +212,12 @@ public class Forca extends Menu {
         char resposta;
 do {
     System.out.print("Deseja jogar novamente? (s/n) ou voltar pro menu? (m) "); // Pergunta ao jogador se ele quer voltar pro menu, jogar de novo, ou sair
-    String input = scanner.nextLine().toLowerCase();
-    while (input.isEmpty()) { //se a entrada for vazia, pede pro jogador digitar de novo até não ser mais vazia.
+    String input = scanner.nextLine().toLowerCase(); // Lê
+    while (input.isEmpty()) { //se a entrada for vazia, pede pro jogador digitar de novo até não ser mais vazia. 
         System.out.print("Entrada vazia. Digite novamente: ");
         input = scanner.nextLine().toLowerCase();
     }
-    resposta = input.charAt(0); // Lê a resposta
+    resposta = input.charAt(0); // Lê a resposta do usuário
     switch (resposta) { // Trata a resposta
             case 'm':
             verMenu(); //volta pro menu. 
