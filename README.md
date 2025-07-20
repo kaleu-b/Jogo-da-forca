@@ -165,4 +165,4 @@ Desenvolvido por **Kaléu Borges Augusto**
 ---
 
 ## Licença 🧾
-Esse projeto é puramente educacional e não tem fins lucrativos. Sinta-se livre para usar por usu próprio.
+Esse projeto é puramente educacional e não tem fins lucrativos. Sinta-se livre para usar.
