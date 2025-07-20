@@ -101,12 +101,16 @@ public class Menu {
                     pausa(1000);
                     break;
             }
-        } while (opcao != '4' || opcao != '1'); // Condição de saída do loop principal
+        } while (opcao != '4' && opcao != '1'); // Condição de saída do loop principal
     }
 
     /**
      * Pausa a execução do programa por um tempo determinado.
      * @param tempoPausa Tempo de pausa em milissegundos (ex: 1000 = 1 segundo)
+     * interrompe a execução da thread atual.
+     * essa pausa vai ser usada por duas razões:
+     * 1. dar tempo pro usuário ler as mensagens do jogo antes da tela ser limpa;
+     * 2. fluidez do jogo.
      */
     public static void pausa(int tempoPausa) {
         try {
