@@ -1,36 +1,72 @@
 #!/bin/bash
 
-# Go to project root (script directory)
+# Ir para o diretório do projeto (raiz)
 cd "$(dirname "$0")" || exit 1
 
-echo "Creating Forca.sh launcher script..."
+SRC_DIR="src"
+JAR_DIR="$SRC_DIR/jar"
+MAIN_CLASS="Menu"
+JAR_NAME="Forca.jar"
+MANIFEST="$JAR_DIR/manifest.txt"
 
+echo "Compilando arquivos .java..."
+find "$SRC_DIR" -name "*.java" > sources.txt
+javac @sources.txt
+
+# Verifica se compilação foi bem-sucedida
+if [ $? -ne 0 ]; then
+    echo "❌ Erro na compilação."
+    rm -f sources.txt
+    exit 1
+fi
+rm -f sources.txt
+echo "✅ Compilação concluída."
+
+echo "Criando diretório para o JAR se necessário..."
+mkdir -p "$JAR_DIR"
+
+echo "Criando arquivo manifest.txt..."
+cat > "$MANIFEST" <<EOF
+Main-Class: $MAIN_CLASS
+Class-Path: .
+EOF
+
+echo "Gerando arquivo JAR..."
+jar cfm "$JAR_DIR/$JAR_NAME" "$MANIFEST" -C "$SRC_DIR" .
+
+if [ $? -ne 0 ]; then
+    echo "❌ Erro ao criar o JAR."
+    exit 1
+fi
+
+echo "✅ JAR criado em $JAR_DIR/$JAR_NAME"
+
+echo "Criando script Forca.sh (Linux)..."
 cat > Forca.sh << 'EOF'
 #!/bin/bash
-cd "$(dirname "$0")/src"
-# Open new terminal window running the Java game
+cd "$(dirname "$0")/src/jar"
 if command -v gnome-terminal &> /dev/null; then
-    gnome-terminal -- bash -c "java -cp . Menu; exec bash"
+    gnome-terminal -- bash -c "java -jar Forca.jar; exec bash"
 elif command -v konsole &> /dev/null; then
-    konsole -e bash -c "java -cp . Menu; exec bash"
+    konsole -e bash -c "java -jar Forca.jar; exec bash"
 elif command -v xfce4-terminal &> /dev/null; then
-    xfce4-terminal -e "bash -c 'java -cp . Menu; exec bash'"
+    xfce4-terminal -e "bash -c 'java -jar Forca.jar; exec bash'"
 else
     echo "No supported terminal emulator found. Running in current terminal."
-    java -cp . Menu
+    java -jar Forca.jar
 fi
 EOF
-
-echo "Creating Forca.bat launcher script..."
-
-cat > Forca.bat << EOF
-@echo off
-cd /d "%~dp0src"
-start cmd /k java -cp . Menu
-EOF
-
-echo "Setting execution permission on Forca.sh..."
 chmod +x Forca.sh
+echo "✅ Script Forca.sh criado."
 
-echo "Build complete!"
-echo "Run Forca.sh on Linux or Forca.bat on Windows to start the game."
+echo "Criando script Forca.bat (Windows)..."
+cat > Forca.bat <<EOF
+@echo off
+cd /d "%~dp0src\\jar"
+start cmd /k java -jar Forca.jar
+EOF
+echo "✅ Script Forca.bat criado."
+
+echo "✅ Build finalizado com sucesso!"
+echo "Use './Forca.sh' no Linux ou 'Forca.bat' no Windows para iniciar o jogo."
+
