@@ -5,7 +5,7 @@ cd "$(dirname "$0")" || exit 1
 
 SRC_DIR="src"
 JAR_DIR="$SRC_DIR/jar"
-MAIN_CLASS="Menu"
+MAIN_CLASS="Forca"
 JAR_NAME="Forca.jar"
 MANIFEST="$JAR_DIR/manifest.txt"
 
@@ -41,29 +41,33 @@ fi
 
 echo "✅ JAR criado em $JAR_DIR/$JAR_NAME"
 
+
 echo "Criando script Forca.sh (Linux)..."
 cat > Forca.sh << 'EOF'
 #!/bin/bash
 cd "$(dirname "$0")/src/jar"
 if command -v gnome-terminal &> /dev/null; then
-    gnome-terminal -- bash -c "java -jar Forca.jar; exec bash"
+    gnome-terminal --title="Jogo da Forca" -- bash -c "java -jar Forca.jar; exec bash"
 elif command -v konsole &> /dev/null; then
-    konsole -e bash -c "java -jar Forca.jar; exec bash"
+    konsole --new-tab -p tabtitle='Jogo da Forca' -e bash -c "java -jar Forca.jar; exec bash"
 elif command -v xfce4-terminal &> /dev/null; then
-    xfce4-terminal -e "bash -c 'java -jar Forca.jar; exec bash'"
+    xfce4-terminal --title="Jogo da Forca" -e "bash -c 'java -jar Forca.jar; exec bash'"
 else
     echo "No supported terminal emulator found. Running in current terminal."
+    # Set title in current terminal (works in most bash terminals)
+    echo -ne "\033]0;Jogo da Forca\007"
     java -jar Forca.jar
 fi
 EOF
 chmod +x Forca.sh
 echo "✅ Script Forca.sh criado."
 
+
 echo "Criando script Forca.bat (Windows)..."
 cat > Forca.bat <<EOF
 @echo off
-cd /d "%~dp0src\\jar"
-start cmd /k java -jar Forca.jar
+cd /d "%~dp0src\jar"
+start "Jogo da Forca" cmd /k "title Jogo da Forca && java -jar Forca.jar"
 EOF
 echo "✅ Script Forca.bat criado."
 
