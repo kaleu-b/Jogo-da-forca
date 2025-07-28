@@ -5,7 +5,7 @@ cd "$(dirname "$0")" || exit 1
 
 SRC_DIR="src"
 JAR_DIR="$SRC_DIR/jar"
-MAIN_CLASS="Forca"
+MAIN_CLASS="Main"
 JAR_NAME="Forca.jar"
 MANIFEST="$JAR_DIR/manifest.txt"
 
@@ -73,4 +73,3 @@ echo "✅ Script Forca.bat criado."
 
 echo "✅ Build finalizado com sucesso!"
 echo "Use './Forca.sh' no Linux ou 'Forca.bat' no Windows para iniciar o jogo."
-
