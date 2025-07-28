@@ -1,4 +1,3 @@
-
 import java.util.Scanner;
 
 public class Menu {
@@ -10,11 +9,13 @@ public class Menu {
    * Controla o fluxo principal do programa de acordo com a escolha do jogador,
    * reutilizando os objetos compartilhados (Scanner, Jogador, Forca) durante toda a execução.
    *
+   * usa retorno para indicar se o jogo deve continuar ou encerrar dependendo da opção escolhida.
    * @param input   Scanner compartilhado para leitura de entrada do usuário
    * @param jogador Objeto Jogador compartilhado
    * @param forca   Instância única de Forca compartilhada
+   * @return boolean indicando se o jogo deve continuar (true) ou encerrar (false)
    */
-  public static void verMenuInicial(Scanner input, Jogador jogador, Forca forca) {
+  public static boolean verMenuInicial(Scanner input, Jogador jogador, Forca forca) {
     char opcao;
     do {
       limpaTela();
@@ -31,8 +32,8 @@ public class Menu {
       input.nextLine();
       switch (opcao) {
         case '1':
-          menuModoJogo(input, jogador, forca);
-          break;
+          boolean continuarAposJogo = menuModoJogo(input, jogador, forca);
+          return continuarAposJogo;
         case '2':
           System.out.println("Instruções do jogo da Forca:");
           System.out.println("1. O objetivo é adivinhar a(s) palavra(s) secreta(s).");
@@ -49,66 +50,39 @@ public class Menu {
         case '4':
           System.out.println("Saindo do jogo...");
           pausa(1500);
-          input.close();
-          System.exit(0);
-          break;
+          return false;
         default:
           System.out.println("Opção inválida! Por favor, escolha uma opção válida.");
           pausa(1000);
           break;
       }
     } while (opcao != '4' && opcao != '1');
+    return true;
   }
 
   /**
    * Exibe o menu de seleção do modo de jogo (multiplayer ou singleplayer).
-   * Permite ao usuário escolher entre jogar contra um amigo ou contra o computador.
-   * Após a escolha, inicia o jogo com o modo selecionado reutilizando os objetos compartilhados.
+   * Agora reutiliza completamente o método selecionarModo() para evitar duplicação.
    *
    * @param input   Scanner compartilhado para leitura de entrada do usuário
    * @param jogador Objeto Jogador compartilhado
    * @param forca   Instância única de Forca compartilhada
+   * @return boolean indicando se o jogo deve continuar (true) ou encerrar (false)
    */
-  private static void menuModoJogo(Scanner input, Jogador jogador, Forca forca) {
-    char modojogo;
-    boolean multiplayer = true;
-    do {
-      limpaTela();
-      System.out.println("Iniciando o jogo da Forca...");
-      pausa(1000);
-      System.out.print("Deseja jogar contra um amigo ou contra o computador? (1 - Amigo, 2 - Computador): ");
-      modojogo = input.next().charAt(0);
-      input.nextLine();
-      switch (modojogo) {
-        case '1':
-          multiplayer = true;
-          System.out.println("Modo selecionado: Jogar contra amigo");
-          pausa(1000);
-          break;
-        case '2':
-          multiplayer = false;
-          System.out.println("Modo selecionado: Jogar contra computador");
-          pausa(1000);
-          break;
-        default:
-          System.out.println("Opção de modo inválida! Por favor, escolha 1 ou 2.");
-          break;
-      }
-    } while (modojogo != '1' && modojogo != '2');
+  public static boolean menuModoJogo(Scanner input, Jogador jogador, Forca forca) {
+    boolean multiplayer = selecionarModo(input);
     limpaTela();
-    forca.iniciarJogo(multiplayer);
+    return forca.iniciarJogo(multiplayer);
   }
-/*
- * esse método exibe o mennu final do jogo com algumas opções que o usuário pode escolher.
- * 1 - volta pro menu inicial
- * 2 - volta pro menu de seleção de modo de jogo
- * 3 - inicia uma revanche 
- * 4 - sai do jogo
- * 
- * obs : esse método usa o mesmo objeto scanner e forca que foram criados no início do jogo.
- * 
- */
-  public static void verMenuFinal(boolean multiplayer, Scanner input, Forca forca) {
+
+  /*
+   * Retorna um número inteiro, de 1 a 4, dependendo da opção escolhida pelo usuário.
+   * 1 - Voltar para o menu inicial
+   * 2 - Selecionar modo de jogo
+   * 3 - Revanche
+   * 4 - Sair do jogo
+   */
+  public static int verMenuFinal(boolean multiplayer, Scanner input, Forca forca) {
     limpaTela();
     System.out.println("Fim do jogo! Obrigado por jogar.");
     pausa(1000);
@@ -129,34 +103,64 @@ public class Menu {
       }
       opcao = entrada.charAt(0);
       switch (opcao) {
+        case '1': // caso 1:
+          return 1; // retorna 1
+        case '2': // caso 2:
+          return 2; // retorna 2
+        case '3': // caso 3:
+          return 3; // retorna 3
+        case '4': // caso 4:
+          System.out.println("Saindo do jogo..."); // mostra uma mensagem de saída
+          pausa(1500); // dá uma pause de 1.5 segundos
+          return 4; // retorna 4
+        default: // caso inválido:
+          System.out.println("Opção inválida! Por favor, escolha uma opção válida."); // mensagem de erro
+          pausa(1000);
+          break; // volta pro loop
+      }
+    } while (true);
+  }
+
+  /**
+   * Método unificado para seleção de modo de jogo.
+   * Agora usado tanto no início do jogo quanto nas revanches.
+   *
+   * @param input Scanner para leitura de entrada
+   * @return true para multiplayer, false para singleplayer
+   */
+  public static boolean selecionarModo(Scanner input) {
+    char modojogo;
+    do {
+      limpaTela();
+      System.out.println("Iniciando o jogo da Forca...");
+      pausa(500);
+      System.out.print("Selecione o modo:1 - Multiplayer (contra amigo) 2 - Singleplayer (contra computador)\nOpção: ");
+      modojogo = input.next().charAt(0);
+      input.nextLine();
+
+      switch (modojogo) {
         case '1':
-          verMenuInicial(input, forca.jogador, forca);
-          break;
+          System.out.println("Modo selecionado: Multiplayer");
+          pausa(1000);
+          return true;
         case '2':
-          menuModoJogo(input, forca.jogador, forca);
-          break;
-        case '3':
-          forca.iniciarJogo(multiplayer);
-          break;
-        case '4':
-          System.out.println("Obrigado por jogar! Até a próxima.");
-          input.close();
-          System.exit(0);
-          break;
+          System.out.println("Modo selecionado: Singleplayer");
+          pausa(1000);
+          return false;
         default:
-          System.out.println("Opção inválida! Por favor, escolha uma opção válida.");
+          System.out.println("Opção inválida! Por favor, escolha 1 ou 2.");
           pausa(1000);
           break;
       }
-    } while (opcao != '4' && opcao != '1' && opcao != '2' && opcao != '3');
+    } while (true);
   }
-  
+
   /*esse método começa um processo de limpeza do terminal, dependendo do OS que o usuário estiver usando.
    *se for um windows, chama o cls.
    * se for linux/mac/unix/qualquer outro OS, usa o clear.
    */
   public static void limpaTela() {
-    try { // tenta limpar a tela:
+   try { // tenta limpar a tela:
       // se o sistema operacional for um windows:
       if (System.getProperty("os.name").contains("Windows")) {
         // abre um processo do CLS no terminal do jogo, limpando a tela.
@@ -172,14 +176,10 @@ public class Menu {
       }
     }
   }
-  
+
   /**
    * Pausa a execução do programa por um tempo determinado.
-   * @param tempoPausa Tempo de pausa em milissegundos (ex: 1000 = 1 segundo)
-   * interrompe a execução da thread atual.
-   * essa pausa vai ser usada por duas razões:
-   * 1. dar tempo pro usuário ler as mensagens do jogo antes da tela ser limpa;
-   * 2. fluidez do jogo.
+   * @param tempoPausa Tempo de pausa em milissegundos
    */
   public static void pausa(int tempoPausa) {
     try {

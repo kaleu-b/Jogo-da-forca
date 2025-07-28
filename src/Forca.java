@@ -6,16 +6,21 @@ import java.util.Scanner; // Importa a classe Scanner para entrada do usuário
  * Controla o fluxo do jogo, manipula o estado dos jogadores, sorteia palavras e
  * executa a lógica principal de adivinhação, sempre reutilizando os objetos compartilhados.
  *
+ * agora tem um loop simples que controla o fluxo do jogo, evitando o risco de stack overflow.
+ * REFATORADO: Eliminados completamente os métodos recursivos que causavam stack overflow.
+ * Agora usa um sistema de loop para controlar o fluxo sem recursão.
  * @author Kaléu Borges
  */
-public class Forca { // Declaração da classe principal do jogo
+public class Forca {
   public final Scanner scanner; // Scanner compartilhado para entrada do usuário
   public final Jogador jogador; // Jogador compartilhado para armazenar dados dos jogadores
   public String nome; // Variável para nome do(s) jogador(es)
   private final Random random = new Random(); // Objeto Random para sorteios
 
   /**
-   * Ponto de entrada do programa. Cria os objetos compartilhados e inicia o menu principal.
+   * Ponto de entrada do programa - agora usa um loop simples para controlar o fluxo.
+   * Cria os objetos compartilhados e inicia o menu principal.
+   * REFATORADO: Agora completamente livre de stack overflow - usa apenas loops iterativos.
    *
    * @param args Argumentos de linha de comando (não utilizados)
    */
@@ -23,7 +28,20 @@ public class Forca { // Declaração da classe principal do jogo
     Scanner scanner = new Scanner(System.in); // Cria o Scanner para entrada
     Jogador jogador = new Jogador(); // Cria o objeto Jogador
     Forca forca = new Forca(scanner, jogador); // Cria o objeto Forca com os objetos compartilhados
-    Menu.verMenuInicial(scanner, jogador, forca); // Inicia o menu principal
+
+    /* Loop principal que controla todo o fluxo do jogo
+     *  se menuinicial retornar true, continua o jogo.
+     *  se retornar false, encerra o jogo.
+     *  REFATORADO: Agora o controle de fluxo é completamente iterativo
+     */
+    boolean continuarJogo = true;
+    while (continuarJogo) {
+      continuarJogo = Menu.verMenuInicial(scanner, jogador, forca);
+    }
+    // mensagem final de agradecimento
+    System.out.println("Obrigado por jogar!");
+    scanner.close(); // Fecha o scanner
+    System.exit(0); // encerra o programa
   }
 
   /**
@@ -38,12 +56,41 @@ public class Forca { // Declaração da classe principal do jogo
   }
 
   /**
-   * Inicia uma nova partida, reseta os dados do jogador e executa a lógica de adivinhação.
+   * Inicia uma nova partida, e retorna um booleano dependendo do método verMenuFinal.
+   * se o menuFinal retornar true, continua o jogo, se retornar false, encerra.
+   * REFATORADO: Agora usa um loop para controlar revanches sem recursão. previne problemas de stack overflow que poderiam acontecer depois de centenas de revanches/chamadas de menu
    *
    * @param multiplayer true para modo multiplayer, false para singleplayer
+   * @return boolean indicando se o jogo deve continuar
    */
-  public void iniciarJogo(boolean multiplayer) { // Inicia o jogo
-    adivinharPalavra(escolhaPalavra(multiplayer), multiplayer); // Escolhe a palavra e inicia a adivinhação
+  public boolean iniciarJogo(boolean multiplayer) { // Inicia o jogo
+    boolean continuarJogando = true;
+    boolean modoAtual = multiplayer;
+
+    // Loop para controlar revanches sem recursão - elimina completamente o risco de stack overflow
+    while (continuarJogando) {
+      adivinharPalavra(escolhaPalavra(modoAtual), modoAtual); // Escolhe a palavra e inicia a adivinhação
+      // Obtém a decisão do menu final usando códigos de retorno
+      int retornoMenuFinal = Menu.verMenuFinal(modoAtual, scanner, this);
+      switch (retornoMenuFinal) {
+        case 1: // Voltar para menu inicial
+          return true;
+        case 2: // Selecionar novo modo
+          modoAtual = Menu.selecionarModo(scanner);
+          break;
+        case 3: // Revanche
+          // Continua no loop com o mesmo modo. não precisa fazer nada aqui.
+          System.out.println("REVANCHE!!!!!!!!!!!!!!!!!");
+          Menu.pausa(1000); // Pausa de 1 segundo para dar tempo de ler a
+          break;
+        case 4: // Sair
+          return false;
+        default:
+          continuarJogando = false;
+          break;
+      }
+    }
+    return true; // nunca deve chegar aqui. mas está aqui porque precisa dar no mínimo algum retorno.
   }
 
   /**
@@ -110,13 +157,13 @@ public class Forca { // Declaração da classe principal do jogo
 
     while (jogoAtivo) { // Loop do jogo
       System.out.print(jogador.getNome(advinhador) + ", Digite uma letra ou a palavra completa: "); // Pede entrada
-      String input = scanner.nextLine().toLowerCase(); // Lê entrada
+      String input = scanner.nextLine().toLowerCase().trim(); // Lê entrada e remove espaços extras
       while (input.isEmpty()) { // Se entrada vazia
         System.out.print("Erro: vazio. Digite novamente: "); // Pede novamente
-        input = scanner.nextLine().toLowerCase(); // Lê de novo
+        input = scanner.nextLine().toLowerCase().trim(); // Lê de novo e remove espaços extras
       }
       if (input.length() > 1) { // Se digitou mais de uma letra (tentou a palavra)
-        if (input.trim().equals(palavra_minusculas)) { // Se acertou a palavra
+        if (input.equals(palavra_minusculas)) { // Se acertou a palavra
           estadoPalavra = new StringBuilder(palavra); // Revela a palavra
           mostraEstado(estadoPalavra, erros); // Mostra estado final
           System.out.println("Parabéns, " + jogador.getNome(advinhador) + "! Você adivinhou a palavra: " + palavra); // Mensagem de vitória
@@ -145,7 +192,6 @@ public class Forca { // Declaração da classe principal do jogo
         jogoAtivo = false; // Sai do loop
       }
     }
-    Menu.verMenuFinal(multiplayer, scanner, this); // Mostra menu final
   }
 
   // Mostra o estado atual da palavra e o número de erros
@@ -158,7 +204,7 @@ public class Forca { // Declaração da classe principal do jogo
    * Inicializa o array de letras descobertas, preenchendo com '_' para letras e ' ' para espaços.
    * Isso garante que espaços na palavra original não sejam ocultados, mantendo a visualização fiel ao esperado.
    * Exemplo: palavra = "Pão de queijo" -> ___ __ ______
-   * 
+   *
    * @param palavra Palavra a ser adivinhada
    * @return Array de caracteres representando o estado inicial da palavra para o jogo
    */
@@ -184,7 +230,7 @@ public class Forca { // Declaração da classe principal do jogo
    * @return true se a letra foi encontrada na palavra, false caso contrário
    */
   private boolean atualizarLetrasDescobertas(char letra, String palavra_minusculas, char[] letrasDescobertas) { // Atualiza letras descobertas
-    boolean letraEncontrada = false; // Flag para saber se encontrou a letra
+    boolean letraEncontrada = false; // Flag para saber se encontrou a letra. por padrão é false.
     for (int i = 0; i < palavra_minusculas.length(); i++) { // Para cada letra da palavra
       if (palavra_minusculas.charAt(i) == letra) { // Se encontrou a letra
         letrasDescobertas[i] = letra; // Revela a letra

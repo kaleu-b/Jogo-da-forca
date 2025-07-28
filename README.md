@@ -114,9 +114,10 @@ Ao selecionar **"Jogar"**, será solicitado que o usuário escolha entre:
 * O boneco será desenhado conforme os erros (até 6 erros).
 * Ao final, o jogador poderá escolher entre:
 
-  * **s** – jogar novamente;
-  * **m** – voltar ao menu;
-  * **n** – encerrar o jogo.
+  * **1** – Voltar pro menu inicial;
+  * **2** – Selecionar modo de jogo;
+  * **3** – Revanche;
+  * **4** - Sair do jogo.
 
 ---
 
