@@ -48,6 +48,7 @@ Jogo-da-forca/
 │   ├── Forca.java
 │   ├── Jogador.java
 │   └── Boneco.java
+|   └── Main.java
 └── src/jar/         # Local onde os scripts buscam os .class para execução
 ```
 
